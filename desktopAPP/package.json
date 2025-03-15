@@ -1,0 +1,82 @@
+{
+    "name": "melodycomposer",
+    "version": "1.0.0",
+    "description": "A simple Electron app with installer",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
+    },
+    "devDependencies": {
+        "7zip-bin": "^5.2.0",
+        "electron": "^28.0.0",
+        "electron-builder": "^24.6.0"
+    },
+    "build": {
+        "appId": "com.example.myapp",
+        "productName": "MelodyComposer",
+        "copyright": "Copyright © 2025",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "main.js",
+            "package.json",
+            "home.html",
+            "tools.html",
+            "examples.html",
+            "logo.ico",
+            "logo.png",
+            "src/**/*",
+            "dist/**/*",
+            "!node_modules/**/{test,tests,__tests__,*.spec.*}"
+        ],
+        "win": {
+            "target": [
+                "nsis"
+            ],
+            "icon": "logo.ico",
+            "publisherName": "tudotech",
+            "artifactName": "${productName}-Setup-${version}.${ext}"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "installerIcon": "logo.ico",
+            "uninstallerIcon": "logo.ico",
+            "deleteAppDataOnUninstall": true
+        },
+        "mac": {
+            "target": "dmg",
+            "icon": "assets/icon.icns",
+            "artifactName": "${productName}-${version}.${ext}"
+        },
+        "dmg": {
+            "background": "assets/dmg-background.png",
+            "iconSize": 100,
+            "contents": [
+                {
+                    "x": 180,
+                    "y": 170,
+                    "type": "file"
+                },
+                {
+                    "x": 480,
+                    "y": 170,
+                    "type": "link",
+                    "path": "/Applications"
+                }
+            ]
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb",
+                "rpm"
+            ],
+            "icon": "assets",
+            "artifactName": "${productName}-${version}.${ext}"
+        }
+    }
+}
