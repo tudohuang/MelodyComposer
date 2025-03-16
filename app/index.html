@@ -12,13 +12,12 @@
     <div class="container">
         <h1 class="text-center mb-4">Melody Composer - Buzzer Edition</h1>
         <div class="controls text-center mb-4">
-            <label class="me-2">Tempo (BPM):</label>
-            <select id="bpm" class="form-select d-inline-block w-auto me-2" onchange="updateBPM()">
-                <option value="60">60</option>
-                <option value="120" selected>120</option>
-                <option value="180">180</option>
-                <option value="240">240</option>
-            </select>
+                <label class="me-2">Tempo (BPM):</label>
+                <select id="bpm" class="form-select d-inline-block w-auto me-2" onchange="updateBPM()">
+                    <input type="range" id="bpm-slider" class="form-range d-inline-block w-auto me-2" min="60" max="240" step="1" value="120" onchange="updateBPM()">
+                    <span id="bpm-value" class="ms-2">120</span>
+                </select>
+
             <label class="me-2">Waveform:</label>
             <select id="wave_type" class="form-select d-inline-block w-auto me-2">
                 <option value="sine">Sine</option>
