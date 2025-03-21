@@ -1,28 +1,113 @@
+/* Reset and Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     background: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
     color: #ffffff;
     font-family: 'Arial', sans-serif;
-    padding: 20px;
+    padding: 0;
     user-select: none;
+    background: transparent; /* 確保窗口透明 */
+    -webkit-app-region: drag;
+    overflow-y: scroll; /* 保持垂直滾動 */
 }
-.container { max-width: 1400px; }
-h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+    display: none; /* 隱藏滾動條 */
+}
+
+/* App Container */
+.app-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Controls Section */
+.controls {
+    background: rgba(42, 42, 63, 0.95); /* 半透明效果 */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #202020;
+    padding: 0.5rem 1rem;
+    -webkit-app-region: drag;
+}
+header .pianos {
+    visibility: hidden;
+    -webkit-app-region: drag;
+}
+
+.logo h1 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+/* Container and Responsive Design */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .container { padding: 10px; }
+    .piano-container { max-width: 100%; overflow-x: auto; }
+    .controls { flex-direction: column; gap: 10px; }
+    .btn-group { width: 100%; }
+    .note-sequence { max-height: 200px; }
+    h1 { font-size: 2rem; }
+}
+
+/* Piano */
 .piano-container {
     max-width: 1300px;
     margin: 30px auto;
-    overflow-x: auto;
     background: #0f0f1a;
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    overflow-x: scroll;
 }
-.piano { display: flex; width: fit-content; }
+
+.piano {
+    display: flex;
+    position: relative; /* 確保黑鍵的絕對定位相對於 .piano */
+    width: fit-content;
+}
+
 .key {
     width: 50px;
     height: 220px;
     border: 2px solid #1a1a2e;
     background: #fff;
-    position: relative;
     cursor: pointer;
     display: flex;
     align-items: flex-end;
@@ -32,6 +117,7 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     transition: all 0.1s ease;
     border-radius: 0 0 4px 4px;
 }
+
 .key.black {
     width: 30px;
     height: 140px;
@@ -39,14 +125,15 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     color: #fff;
     position: absolute;
     top: 0;
-    left: 70%;
     transform: translateX(-50%);
     z-index: 1;
     border-radius: 0 0 3px 3px;
 }
-.key.white:hover { background: #e0e0e0; }
+
+/* 確保僅點擊對應鍵時觸發樣式 */
+.key.white:not(.black):hover { background: #e0e0e0; }
 .key.black:hover { background: #3a3a5e; }
-.key.white:active {
+.key.white:not(.black):active {
     background: #b0b0b0;
     transform: scale(0.98);
     box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -56,13 +143,14 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     transform: scale(0.95);
     box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
 }
-.controls {
-    background: #2a2a3f;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    margin-bottom: 20px;
+
+/* 禁用鍵樣式 */
+.key.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
+
+/* Note Sequence */
 .note-sequence {
     background: #2a2a3f;
     padding: 20px;
@@ -71,6 +159,7 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     overflow-y: auto;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
+
 .note-item {
     display: flex;
     align-items: center;
@@ -78,8 +167,17 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     background: #3a3a5e;
     margin-bottom: 8px;
     border-radius: 5px;
+    cursor: move;
 }
+
+.note-item.dragging {
+    opacity: 0.5; /* 拖曳時半透明 */
+    background-color: #e0e0e0;
+}
+
 .note-item span { flex: 1; color: #d0d0ff; }
+
+/* Buzzer Code */
 .buzzer-code {
     background: #1a1a2e;
     padding: 20px;
@@ -89,16 +187,132 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     white-space: pre-wrap;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
+
+/* Custom Button */
 .btn-custom {
-    padding: 8px 16px;
-    font-weight: bold;
-    transition: all 0.3s ease;
+    padding: 0.8em 1.8em;
+    border: 2px solid #17C3B2;
+    position: relative;
+    overflow: hidden;
+    background-color: transparent;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 16px;
+    transition: 0.3s;
+    z-index: 1;
+    font-family: inherit;
+    color: #17C3B2;
+    border-radius: 8px;
+    cursor: pointer;
 }
+
+.btn-custom::before {
+    content: '';
+    width: 0;
+    height: 300%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: #17C3B2;
+    transition: 0.5s ease;
+    display: block;
+    z-index: -1;
+}
+
+.btn-custom:hover::before {
+    width: 120%;
+}
+
 .btn-custom:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    color: #111;
 }
-.btn-selected { background-color: #00ff9d; color: #1a1a2e; }
+
+/* Button Color Variations */
+.btn-primary {
+    border-color: #1E90FF;
+    color: #1E90FF;
+}
+
+.btn-primary::before {
+    background: #1E90FF;
+}
+
+.btn-success {
+    border-color: #28A745;
+    color: #28A745;
+}
+
+.btn-success::before {
+    background: #28A745;
+}
+
+.btn-danger {
+    border-color: #DC3545;
+    color: #DC3545;
+}
+
+.btn-danger::before {
+    background: #DC3545;
+}
+
+.btn-warning {
+    border-color: #FFC107;
+    color: #FFC107;
+}
+
+.btn-warning::before {
+    background: #FFC107;
+}
+
+.btn-info {
+    border-color: #17A2B8;
+    color: #17A2B8;
+}
+
+.btn-info::before {
+    background: #17A2B8;
+}
+
+/* Form Range */
+.form-range {
+    width: 150px;
+    height: 6px;
+    background: #3a3a5e;
+    border-radius: 5px;
+    outline: none;
+}
+
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #00ff9d;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    background: #00cc80;
+}
+
+#progressBar {
+    cursor: pointer;
+}
+
+.note-annotation {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.note-annotation input {
+    width: 100%;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+
+/* Melody Preview */
 #melody-preview {
     width: 100%;
     height: 150px;
@@ -107,7 +321,8 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     margin-top: 20px;
     overflow-x: auto;
 }
-/* 快捷鍵面板樣式 */
+
+/* Shortcut Panel */
 .shortcut-panel {
     position: fixed;
     top: 20px;
@@ -121,28 +336,34 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     transform: translateX(100%);
     transition: transform 0.3s ease;
 }
+
 .shortcut-panel.open {
     transform: translateX(0);
 }
+
 .shortcut-panel h5 {
     margin-top: 0;
     margin-bottom: 10px;
     color: #00ff9d;
 }
+
 .shortcut-panel ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
+
 .shortcut-panel li {
     display: flex;
     justify-content: space-between;
     padding: 5px 0;
     border-bottom: 1px solid #3a3a5e;
 }
+
 .shortcut-panel li:last-child {
     border-bottom: none;
 }
+
 .shortcut-toggle {
     position: fixed;
     top: 20px;
@@ -159,10 +380,12 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 1001;
 }
+
 .shortcut-toggle:hover {
     background: #00cc80;
 }
-/* Example 視窗樣式 */
+
+/* Example Panel */
 .example-panel {
     position: fixed;
     bottom: 20px;
@@ -176,30 +399,37 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     transform: translateY(100%);
     transition: transform 0.3s ease;
 }
+
 .example-panel.open {
     transform: translateY(0);
 }
+
 .example-panel h5 {
     margin-top: 0;
     margin-bottom: 10px;
     color: #00ff9d;
 }
+
 .example-panel ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
+
 .example-panel li {
     padding: 8px;
     cursor: pointer;
     border-bottom: 1px solid #3a3a5e;
 }
+
 .example-panel li:hover {
     background: #3a3a5e;
 }
+
 .example-panel li:last-child {
     border-bottom: none;
 }
+
 .example-toggle {
     position: fixed;
     bottom: 20px;
@@ -216,6 +446,221 @@ h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 1001;
 }
+
 .example-toggle:hover {
     background: #00cc80;
 }
+
+/* Home Toggle */
+.home-toggle {
+    position: fixed;
+    bottom: 70px;
+    left: 20px;
+    background: linear-gradient(135deg, #00ffaa, #00ddff);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Hover 漸變滑動效果 */
+.home-toggle::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #00ffaa, #00ddff, #00ffaa);
+    transition: left 0.5s ease-in-out;
+    border-radius: 50%;
+}
+
+.home-toggle:hover::before {
+    left: 0;
+}
+
+.home-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Window Controls */
+.window-controls {
+    display: flex;
+    gap: 8px;
+    -webkit-app-region: no-drag; /* 確保按鈕不影響視窗拖動 */
+}
+
+.window-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    width: 40px;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover Effects */
+.window-controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Close Button Special Style */
+#close-btn:hover {
+    background: #e81123;
+    color: #fff;
+}
+
+/* Icons */
+.window-controls button i {
+    font-size: 14px;
+}
+
+/* Keymap Editor */
+.keymap-editor {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #16213e, #1a1a2e);
+    border: 1px solid rgba(0, 255, 157, 0.2);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    width: 450px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.keymap-editor.open {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.keymap-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.keymap-item:hover {
+    transform: translateX(5px);
+    background-color: rgba(0, 255, 157, 0.1);
+}
+
+.keymap-item select,
+.keymap-item input {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 255, 157, 0.3);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.keymap-item select:focus,
+.keymap-item input:focus {
+    border-color: #00ff9d;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 255, 157, 0.5);
+}
+
+/* Progress Container */
+.progress-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    height: 10px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 10px;
+    background-color: #4CAF50;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+
+:root {
+    --background-gradient: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
+    --key-white-bg: #ffffff;
+    --key-black-bg: #1a1a2e;
+    --text-color: #ffffff;
+    --panel-bg: #2a2a3f;
+    --note-item-bg: #3a3a5e;
+    --buzzer-code-bg: #1a1a2e;
+    --canvas-bg: #1a1a2e;
+}
+
+body {
+    background: var(--background-gradient);
+    color: var(--text-color);
+}
+
+.app-container {
+    background: var(--background-gradient);
+}
+
+.key.white {
+    background: var(--key-white-bg);
+}
+
+.key.black {
+    background: var(--key-black-bg);
+}
+
+.note-sequence {
+    background: var(--panel-bg);
+}
+
+.note-item {
+    background: var(--note-item-bg);
+}
+
+.buzzer-code {
+    background: var(--buzzer-code-bg);
+}
+
+#melody-preview {
+    background: var(--canvas-bg);
+}
+
+.shortcut-panel {
+    background: var(--panel-bg);
+}
+
+.keymap-editor {
+    background: var(--panel-bg);
+}
+
