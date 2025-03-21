@@ -6,90 +6,120 @@
     <title>Melody Composer - Buzzer Edition</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center mb-4">Melody Composer - Buzzer Edition</h1>
-        <div class="controls text-center mb-4">
-                <label class="me-2">Tempo (BPM):</label>
-                <select id="bpm" class="form-select d-inline-block w-auto me-2" onchange="updateBPM()">
-                    <input type="range" id="bpm-slider" class="form-range d-inline-block w-auto me-2" min="60" max="240" step="1" value="120" onchange="updateBPM()">
-                    <span id="bpm-value" class="ms-2">120</span>
-                </select>
+    <div class="app-container">
+        <header class="pianos"></header>
 
-            <label class="me-2">Waveform:</label>
-            <select id="wave_type" class="form-select d-inline-block w-auto me-2">
-                <option value="sine">Sine</option>
-                <option value="triangle">Triangle</option>
-                <option value="sawtooth">Sawtooth</option>
-                <option value="square">Square</option>
-            </select>
-            <label class="me-2">Duration:</label>
-            <div class="btn-group d-inline-block" id="duration-buttons">
-                <button class="btn btn-outline-light btn-custom" onclick="setDuration('32th')">1/32</button>
-                <button class="btn btn-outline-light btn-custom" onclick="setDuration('16th')">1/16</button>
-                <button class="btn btn-outline-light btn-custom" onclick="setDuration('eighth')">1/8</button>
-                <button class="btn btn-outline-light btn-custom btn-selected" onclick="setDuration('quarter')">1/4</button>
-                <button class="btn btn-outline-light btn-custom" onclick="setDuration('half')">1/2</button>
-                <button class="btn btn-outline-light btn-custom" onclick="setDuration('whole')">1/1</button>
+        
+        <div class="container">
+            <h1 class="text-center mb-4">Melody Composer - Buzzer Edition</h1>
+            <div class="controls text-center mb-4">
+                <label class="me-2">Tempo (BPM):</label>
+                <input type="range" id="bpm-slider" class="form-range d-inline-block w-auto me-2" min="60" max="240" step="1" value="120" oninput="updateBPMFromSlider()">
+                <span id="bpm-value" class="ms-2">120</span>
+
+                <label class="me-2">Waveform:</label>
+                <select id="wave_type" class="form-select d-inline-block w-auto me-2">
+                    <option value="sine">Sine</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="square">Square</option>
+                </select>
+                <label class="me-2">Volume:</label>
+                <input type="range" id="volume-slider" class="form-range d-inline-block w-auto me-2" min="0" max="100" step="1" value="50" oninput="updateVolume()">
+                <span id="volume-value" class="ms-2">50%</span>
+                <label class="me-2">Duration:</label>
+                <div class="btn-group d-inline-block" id="duration-buttons">
+                    <button class="btn btn-outline-light btn-custom" onclick="setDuration('32th')">1/32</button>
+                    <button class="btn btn-outline-light btn-custom" onclick="setDuration('16th')">1/16</button>
+                    <button class="btn btn-outline-light btn-custom" onclick="setDuration('eighth')">1/8</button>
+                    <button class="btn btn-outline-light btn-custom btn-selected" onclick="setDuration('quarter')">1/4</button>
+                    <button class="btn btn-outline-light btn-custom" onclick="setDuration('half')">1/2</button>
+                    <button class="btn btn-outline-light btn-custom" onclick="setDuration('whole')">1/1</button>
+                    <button class="btn-outline-light btn-custom" onclick="toggleTheme()" data-bs-toggle="tooltip" data-bs-placement="top" title="W.I.P">Theme</button>
+                </div>
+            </div>
+            <div class="piano-container">
+                <div class="piano" id="piano"></div>
+            </div>
+            <div class="note-sequence mb-4">
+                <h5>Composition:</h5>
+                <div id="notes-list"></div>
+            </div>
+            <canvas id="melody-preview"></canvas>
+
+            <div class="text-center mb-4">
+                <button class="btn btn-primary btn-custom me-2" id="playButton" data-bs-toggle="tooltip" data-bs-placement="top" title="Play the current melody"><i class="fas fa-play me-2"></i>Play</button>
+                <button class="btn btn-secondary btn-custom me-2" id="stopButton" data-bs-toggle="tooltip" data-bs-placement="top" title="Stop playback"><i class="fas fa-stop me-2"></i>Stop</button>
+                <button class="btn btn-success btn-custom me-2" onclick="generateCode()" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate buzzer code for Arduino">Generate Code</button>
+                <button class="btn btn-danger btn-custom me-2" onclick="clearSequence()" data-bs-toggle="tooltip" data-bs-placement="top" title="Clear the current melody">Clear</button>
+                <button class="btn btn-warning btn-custom me-2" onclick="addRest()" data-bs-toggle="tooltip" data-bs-placement="top" title="Add a rest to the melody">Add Rest</button>
+                <button class="btn btn-info btn-custom me-2" onclick="saveMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Save the melody as a JSON file">Save Melody</button>
+                <input type="file" id="loadMelody" class="d-none" onchange="loadMelody(event)">
+                <button class="btn btn-info btn-custom me-2" onclick="document.getElementById('loadMelody').click()" data-bs-toggle="tooltip" data-bs-placement="top" title="Load a melody from a JSON file">Load Melody</button>
+                <button class="btn btn-info btn-custom me-2" onclick="openKeymapEditor()" data-bs-toggle="tooltip" data-bs-placement="top" title="Customize keyboard shortcuts">Customize Keymap</button>
+                <button class="btn btn-custom btn-info" onclick="generateRandomMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a random melody">
+                    <i class="fas fa-random me-2"></i>Generate Random Melody
+                </button>
+                <button class="btn btn-info btn-custom me-2" onclick="shareMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Share your melody with others">
+                    <i class="fas fa-share-alt me-2"></i>Share Melody
+                </button>
+            </div>
+            <div class="text-center mb-4">
+                <input type="range" id="progressBar" min="0" max="100" value="0" class="form-range w-50">
+            </div>
+            <div class="text-center mb-4 position-relative">
+                <button class="btn btn-secondary btn-custom copy-btn" id="copyCodeBtn" onclick="copyCode()" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to clipboard">
+                    <i class="fas fa-copy me-2"></i>Copy Code
+                </button>
+            </div>
+            <div class="buzzer-code" id="buzzer-code">
+                Buzzer code will appear here...
             </div>
         </div>
-        <div class="piano-container">
-            <div class="piano" id="piano"></div>
+        <!-- 快捷鍵面板 -->
+        <button class="shortcut-toggle" onclick="toggleShortcutPanel()">
+            <i class="fas fa-keyboard"></i>
+        </button>
+        <div class="shortcut-panel" id="shortcutPanel">
+            <h5>Shortcut Dashboard</h5>
+            <ul id="shortcutList">
+                <li><span>1/32 Note</span><span>1</span></li>
+                <li><span>1/16 Note</span><span>2</span></li>
+                <li><span>1/8 Note</span><span>3</span></li>
+                <li><span>1/4 Note</span><span>4</span></li>
+                <li><span>1/2 Note</span><span>5</span></li>
+                <li><span>Whole Note</span><span>6</span></li>
+                <li><span>Rest</span><span>R</span></li>
+                <li><span>C3</span><span>Q</span></li>
+                <li><span>C#3</span><span>2</span></li>
+                <li><span>D3</span><span>W</span></li>
+                <li><span>D#3</span><span>3</span></li>
+                <li><span>E3</span><span>E</span></li>
+                <li><span>F3</span><span>R</span></li>
+                <li><span>F#3</span><span>5</span></li>
+                <li><span>G3</span><span>T</span></li>
+            </ul>
         </div>
-        <div class="note-sequence mb-4">
-            <h5>Composition:</h5>
-            <div id="notes-list"></div>
-            <canvas id="melody-preview"></canvas>
+        <!-- 鍵盤映射編輯面板 -->
+        <div class="keymap-editor" id="keymapEditor">
+            <h5>Customize Keymap</h5>
+            <div id="keymapList"></div>
+            <button class="btn btn-success mt-3" onclick="saveKeymap()">Save Keymap</button>
+            <button class="btn btn-danger mt-3 ms-2" onclick="closeKeymapEditor()">Close</button>
         </div>
-        <div class="text-center mb-4">
-            <button class="btn btn-primary btn-custom me-2" onclick="playSequence()">Play Melody</button>
-            <button class="btn btn-success btn-custom me-2" onclick="generateCode()">Generate Code</button>
-            <button class="btn btn-danger btn-custom me-2" onclick="clearSequence()">Clear</button>
-            <button class="btn btn-warning btn-custom me-2" onclick="addRest()">Add Rest</button>
-            <button class="btn btn-info btn-custom me-2" onclick="saveMelody()">Save Melody</button>
-            <input type="file" id="loadMelody" class="d-none" onchange="loadMelody(event)">
-            <button class="btn btn-info btn-custom me-2" onclick="document.getElementById('loadMelody').click()">Load Melody</button>
-        </div>
-        <div class="text-center mb-4 position-relative">
-            <button class="btn btn-secondary btn-custom copy-btn" id="copyCodeBtn" onclick="copyCode()" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to clipboard">
-                <i class="fas fa-copy me-2"></i>Copy Code
-            </button>
-        </div>
-        <div class="buzzer-code" id="buzzer-code">
-            Buzzer code will appear here...
-        </div>
+        <!-- 錯誤訊息模態框 -->
+        <button class="example-toggle" onclick="window.location.href='examples.html'">
+            <i class="fas fa-music"></i>
+        </button>
+        <button class="home-toggle" onclick="window.location.href='home.html'">
+            <i class="fas fa-house"></i>
+        </button>
     </div>
-    <!-- 快捷鍵面板 -->
-    <button class="shortcut-toggle" onclick="toggleShortcutPanel()">
-        <i class="fas fa-keyboard"></i>
-    </button>
-    <div class="shortcut-panel" id="shortcutPanel">
-        <h5>Shortcut Dashboard</h5>
-        <ul>
-            <li><span>1/32 Note</span><span>1</span></li>
-            <li><span>1/16 Note</span><span>2</span></li>
-            <li><span>1/8 Note</span><span>3</span></li>
-            <li><span>1/4 Note</span><span>4</span></li>
-            <li><span>1/2 Note</span><span>5</span></li>
-            <li><span>Whole Note</span><span>6</span></li>
-            <li><span>Rest</span><span>R</span></li>
-            <li><span>C3</span><span>Q</span></li>
-            <li><span>C#3</span><span>2</span></li>
-            <li><span>D3</span><span>W</span></li>
-            <li><span>D#3</span><span>3</span></li>
-            <li><span>E3</span><span>E</span></li>
-            <li><span>F3</span><span>R</span></li>
-            <li><span>F#3</span><span>5</span></li>
-            <li><span>G3</span><span>T</span></li>
-        </ul>
-    </div>
-    <button class="example-toggle" onclick="window.location.href='examples.html'">
-        <i class="fas fa-music"></i>
-    </button>
-    <div class="example-panel" id="examplePanel" style="display: none;">
-    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
