@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Melody - Melody Buzzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --background-gradient: linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%);
+            --text-color: #ffffff;
+            --panel-bg: #2a2a3f;
+            --note-item-bg: #3a3a5e;
+            --canvas-bg: #1a1a2e;
+        }
+
+        body {
+            background: var(--background-gradient);
+            color: var(--text-color);
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            user-select: none;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            color: #ffffff !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #00ff9d !important;
+        }
+
+        .container { max-width: 1200px; }
+
+        h1 { font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+
+        .note-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--note-item-bg);
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .notes-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: var(--panel-bg);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #melody-preview {
+            width: 100%;
+            height: 150px;
+            background: var(--canvas-bg);
+            border-radius: 10px;
+        }
+
+        .btn-custom {
+            padding: 8px 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+            background-color: transparent;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            z-index: 1;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-custom::before {
+            content: '';
+            width: 0;
+            height: 300%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            transition: 0.5s ease;
+            display: block;
+            z-index: -1;
+        }
+
+        .btn-custom:hover::before {
+            width: 120%;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            border-color: #1E90FF;
+            color: #1E90FF;
+        }
+
+        .btn-primary::before {
+            background: #1E90FF;
+        }
+
+        .btn-primary:hover {
+            color: #111;
+        }
+
+        .btn-danger {
+            border-color: #DC3545;
+            color: #DC3545;
+        }
+
+        .btn-danger::before {
+            background: #DC3545;
+        }
+
+        .btn-danger:hover {
+            color: #111;
+        }
+
+        .btn-info {
+            border-color: #17A2B8;
+            color: #17A2B8;
+        }
+
+        .btn-info::before {
+            background: #17A2B8;
+        }
+
+        .btn-info:hover {
+            color: #111;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="home.html">Melody Buzzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tools.html">Tools</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="examples.html">Examples</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tutorial.html">Tutorial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="my-melodies.html">My Melodies</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Shared Melody</h1>
+
+        <div class="text-center mb-4">
+            <button class="btn btn-info btn-custom me-2" onclick="toggleTheme()" data-bs-toggle="tooltip" data-bs-placement="top" title="Toggle between dark and light theme">
+                <i class="fas fa-adjust me-2"></i>Toggle Theme
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <h5>Controls</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <label for="bpm-slider" class="form-label">BPM: <span id="bpm-value">120</span></label>
+                    <input type="range" id="bpm-slider" class="form-range" min="60" max="240" value="120" oninput="updateBPMFromSlider()">
+                </div>
+                <div>
+                    <label for="volume-slider" class="form-label">Volume: <span id="volume-value">50%</span></label>
+                    <input type="range" id="volume-slider" class="form-range" min="0" max="100" value="50" oninput="updateVolume()">
+                </div>
+            </div>
+            <div class="text-center">
+                <button id="playButton" class="btn btn-primary btn-custom me-2"><i class="fas fa-play me-2"></i>Play</button>
+                <button id="stopButton" class="btn btn-danger btn-custom me-2"><i class="fas fa-stop me-2"></i>Stop</button>
+            </div>
+            <div class="mt-3">
+                <label for="progressBar" class="form-label">Progress</label>
+                <input type="range" id="progressBar" class="form-range" min="0" max="100" value="0">
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5>Shared Melody</h5>
+            <div id="notes-list" class="notes-list"></div>
+        </div>
+
+        <div class="mb-4">
+            <h5>Melody Preview</h5>
+            <canvas id="melody-preview"></canvas>
+        </div>
+
+        <div class="text-center">
+            <a href="tools.html" class="btn btn-primary btn-custom">Edit in Tools</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // === Constants and Definitions ===
+        const NOTE_FREQS = {
+            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81,
+            'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00,
+            'A#3': 233.08, 'B3': 246.94, 'C4': 261.63, 'C#4': 277.18, 'D4': 293.66,
+            'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
+            'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88, 'C5': 523.25,
+            'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46,
+            'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33,
+            'B5': 987.77, 'C6': 1046.50, 'C#6': 1108.73, 'D6': 1174.66, 'D#6': 1244.51,
+            'E6': 1318.51, 'F6': 1396.91, 'F#6': 1479.98, 'Rest': 0
+        };
+
+        const keys = [
+            { note: 'C3', type: 'white' }, { note: 'C#3', type: 'black' },
+            { note: 'D3', type: 'white' }, { note: 'D#3', type: 'black' },
+            { note: 'E3', type: 'white' }, { note: 'F3', type: 'white' },
+            { note: 'F#3', type: 'black' }, { note: 'G3', type: 'white' },
+            { note: 'G#3', type: 'black' }, { note: 'A3', type: 'white' },
+            { note: 'A#3', type: 'black' }, { note: 'B3', type: 'white' },
+            { note: 'C4', type: 'white' }, { note: 'C#4', type: 'black' },
+            { note: 'D4', type: 'white' }, { note: 'D#4', type: 'black' },
+            { note: 'E4', type: 'white' }, { note: 'F4', type: 'white' },
+            { note: 'F#4', type: 'black' }, { note: 'G4', type: 'white' },
+            { note: 'G#4', type: 'black' }, { note: 'A4', type: 'white' },
+            { note: 'A#4', type: 'black' }, { note: 'B4', type: 'white' },
+            { note: 'C5', type: 'white' }, { note: 'C#5', type: 'black' },
+            { note: 'D5', type: 'white' }, { note: 'D#5', type: 'black' },
+            { note: 'E5', type: 'white' }, { note: 'F5', type: 'white' },
+            { note: 'F#5', type: 'black' }, { note: 'G5', type: 'white' },
+            { note: 'G#5', type: 'black' }, { note: 'A5', type: 'white' },
+            { note: 'A#5', type: 'black' }, { note: 'B5', type: 'white' },
+            { note: 'C6', type: 'white' }, { note: 'C#6', type: 'black' },
+            { note: 'D6', type: 'white' }, { note: 'D#6', type: 'black' },
+            { note: 'E6', type: 'white' }, { note: 'F6', type: 'white' },
+            { note: 'F#6', type: 'black' }
+        ];
+
+        // === Global State ===
+        let noteSequence = [];
+        let bpm = 120;
+        let isPlaying = false;
+        let currentNoteIndex = 0;
+        let timeouts = [];
+        let volume = 0.5;
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const gainNode = audioContext.createGain();
+        gainNode.connect(audioContext.destination);
+
+        // === Event Listeners ===
+        function setupEventListeners() {
+            document.addEventListener('DOMContentLoaded', setupDOMListeners);
+        }
+
+        function setupDOMListeners() {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+                new bootstrap.Tooltip(element);
+            });
+
+            updateBPMFromSlider();
+            updateVolume();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const melodyBase64 = urlParams.get('melody');
+            if (melodyBase64) {
+                try {
+                    const melodyJSON = atob(decodeURIComponent(melodyBase64));
+                    noteSequence = JSON.parse(melodyJSON);
+                    updateNoteDisplay();
+                } catch (err) {
+                    console.error('Failed to load shared melody:', err);
+                    showError('Invalid shared melody link!');
+                }
+            } else {
+                showError('No melody data found in the link!');
+            }
+
+            document.getElementById('playButton')?.addEventListener('click', playSequence);
+            document.getElementById('stopButton')?.addEventListener('click', stopSequence);
+            document.getElementById('progressBar')?.addEventListener('input', seekSequence);
+
+            updateTheme();
+        }
+
+        // === Error Handling ===
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: message,
+            });
+        }
+
+        // === Playback Functions ===
+        function playTone(freq, duration) {
+            if (freq === 0) return;
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = freq;
+            oscillator.connect(gainNode);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function playSequence() {
+            if (noteSequence.length === 0) {
+                showError('No sequence to play!');
+                return;
+            }
+
+            const playButton = document.getElementById('playButton');
+            if (isPlaying) {
+                stopPlayback();
+                return;
+            }
+
+            timeouts.forEach(timeout => clearTimeout(timeout));
+            timeouts = [];
+
+            isPlaying = true;
+            playButton.innerHTML = '<i class="fas fa-pause me-2"></i>Pause';
+
+            playFromIndex(currentNoteIndex);
+            updateProgress();
+        }
+
+        function playFromIndex(startIndex) {
+            currentNoteIndex = startIndex;
+            let delay = 0;
+            const canvas = document.getElementById('melody-preview');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.scrollWidth;
+            const totalDuration = noteSequence.reduce((sum, item) => sum + getDuration(item.type) + 50, 0);
+            const scaleX = totalDuration > 0 ? width / totalDuration : 1;
+
+            for (let i = startIndex; i < noteSequence.length; i++) {
+                if (!isPlaying) break;
+                const item = noteSequence[i];
+                const duration = getDuration(item.type);
+                const xStart = i === 0 ? 0 : noteSequence.slice(0, i).reduce((sum, prevItem) => sum + getDuration(prevItem.type) + 50, 0) * scaleX;
+                const w = duration * scaleX;
+
+                const timeout = setTimeout(() => {
+                    if (!isPlaying) return;
+                    if (!item.isRest && item.note !== 'Rest') {
+                        playTone(NOTE_FREQS[item.note], duration);
+                        drawPlayingNote(ctx, xStart, w, item.note, duration);
+                    } else {
+                        drawPlayingRest(ctx, xStart, w, duration);
+                    }
+                    currentNoteIndex++;
+                    if (currentNoteIndex === noteSequence.length) {
+                        resetPlayback();
+                    }
+                }, delay);
+
+                timeouts.push(timeout);
+                delay += duration + 50;
+            }
+        }
+
+        function stopSequence() {
+            isPlaying = false;
+            timeouts.forEach(timeout => clearTimeout(timeout));
+            timeouts = [];
+            currentNoteIndex = 0;
+            document.getElementById('playButton').innerHTML = '<i class="fas fa-play me-2"></i>Play';
+            document.getElementById('progressBar').value = 0;
+            drawMelodyPreview();
+        }
+
+        function seekSequence(event) {
+            if (noteSequence.length === 0) return;
+            const progressBar = document.getElementById('progressBar');
+            const totalDuration = noteSequence.reduce((sum, item) => sum + getDuration(item.type) + 50, 0);
+            const seekTime = (progressBar.value / 100) * totalDuration;
+
+            let cumulativeTime = 0;
+            for (let i = 0; i < noteSequence.length; i++) {
+                const duration = getDuration(noteSequence[i].type);
+                cumulativeTime += duration + 50;
+                if (cumulativeTime >= seekTime) {
+                    currentNoteIndex = i;
+                    break;
+                }
+            }
+
+            if (isPlaying) {
+                timeouts.forEach(timeout => clearTimeout(timeout));
+                timeouts = [];
+                playSequence();
+            }
+        }
+
+        // === UI Update Functions ===
+        function updateNoteDisplay() {
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '';
+            noteSequence.forEach((item, index) => {
+                const div = createNoteElement(item, index);
+                notesList.appendChild(div);
+            });
+            drawMelodyPreview();
+        }
+
+        function updateBPMFromSlider() {
+            const bpmSlider = document.getElementById('bpm-slider');
+            const bpmValue = document.getElementById('bpm-value');
+            bpm = parseInt(bpmSlider.value) || 120;
+            bpmValue.textContent = bpm;
+            updateNoteDisplay();
+        }
+
+        function updateVolume() {
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeValue = document.getElementById('volume-value');
+            volume = parseInt(volumeSlider.value) / 100;
+            volumeValue.textContent = `${volumeSlider.value}%`;
+        }
+
+        // === Utility Functions ===
+        function getDuration(type) {
+            const quarterDuration = 60000 / bpm;
+            const durations = {
+                'whole': quarterDuration * 4, 'half': quarterDuration * 2,
+                'quarter': quarterDuration, 'eighth': quarterDuration / 2,
+                '16th': quarterDuration / 4, '32th': quarterDuration / 8
+            };
+            return durations[type];
+        }
+
+        // === Visualization Functions ===
+        function drawMelodyPreview() {
+            const canvas = document.getElementById('melody-preview');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.scrollWidth;
+            canvas.width = width;
+            canvas.height = 150;
+
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, 150);
+
+            const totalDuration = noteSequence.reduce((sum, item) => sum + getDuration(item.type) + 50, 0);
+            const scaleX = totalDuration > 0 ? width / totalDuration : 1;
+            let x = 0;
+
+            noteSequence.forEach(item => {
+                const duration = getDuration(item.type);
+                const w = duration * scaleX;
+                if (item.isRest) {
+                    drawRest(ctx, x, w);
+                } else {
+                    drawNote(ctx, x, w, item.note);
+                }
+                x += (duration + 50) * scaleX;
+            });
+        }
+
+        function drawNote(ctx, x, w, note) {
+            const noteIndex = keys.findIndex(k => k.note === note);
+            const y = 140 - (noteIndex * 3);
+            ctx.fillStyle = '#00ff9d';
+            ctx.fillRect(x, y, w, 3);
+            ctx.strokeStyle = '#ffffff';
+            ctx.strokeRect(x, y, w, 3);
+        }
+
+        function drawRest(ctx, x, w) {
+            ctx.strokeStyle = '#888888';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x, 75);
+            ctx.lineTo(x + w, 75);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawPlayingNote(ctx, xStart, w, note, duration) {
+            const noteIndex = keys.findIndex(k => k.note === note);
+            const y = 140 - (noteIndex * 3);
+
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(xStart, 0, w, ctx.canvas.height);
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(xStart, y, w, 3);
+            ctx.strokeStyle = '#ffffff';
+            ctx.strokeRect(xStart, y, w, 3);
+
+            setTimeout(() => {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(xStart, 0, w, ctx.canvas.height);
+                ctx.fillStyle = '#00ff9d';
+                ctx.fillRect(xStart, y, w, 3);
+                ctx.strokeStyle = '#ffffff';
+                ctx.strokeRect(xStart, y, w, 3);
+            }, duration);
+        }
+
+        function drawPlayingRest(ctx, xStart, w, duration) {
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(xStart, 75);
+            ctx.lineTo(xStart + w, 75);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            setTimeout(() => {
+                ctx.strokeStyle = '#888888';
+                ctx.beginPath();
+                ctx.moveTo(xStart, 75);
+                ctx.lineTo(xStart + w, 75);
+                ctx.stroke();
+            }, duration);
+        }
+
+        // === Helper Functions ===
+        function createNoteElement(item, index) {
+            const duration = Math.round(getDuration(item.type));
+            const div = document.createElement('div');
+            div.className = 'note-item';
+            div.innerHTML = `
+                <span>${item.isRest ? 'Rest' : item.note} (${item.type}, ${duration}ms)</span>
+            `;
+            return div;
+        }
+
+        function updateProgress() {
+            if (!isPlaying) return;
+            const noteTimings = [];
+            let cumulativeTime = 0;
+            noteSequence.forEach(item => {
+                noteTimings.push(cumulativeTime);
+                cumulativeTime += getDuration(item.type) + 50;
+            });
+            const totalDuration = noteSequence.reduce((sum, item) => sum + getDuration(item.type) + 50, 0);
+            const elapsedTime = noteTimings[currentNoteIndex] || 0;
+            const progress = (elapsedTime / totalDuration) * 100;
+            document.getElementById('progressBar').value = progress;
+            if (currentNoteIndex < noteSequence.length) setTimeout(updateProgress, 50);
+        }
+
+        function resetPlayback() {
+            isPlaying = false;
+            document.getElementById('playButton').innerHTML = '<i class="fas fa-play me-2"></i>Play';
+            document.getElementById('progressBar').value = 100;
+        }
+
+        function stopPlayback() {
+            isPlaying = false;
+            timeouts.forEach(timeout => clearTimeout(timeout));
+            timeouts = [];
+            document.getElementById('playButton').innerHTML = '<i class="fas fa-play me-2"></i>Play';
+        }
+
+        // === Theme ===
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            updateTheme();
+        }
+
+        function updateTheme() {
+            const root = document.documentElement;
+            if (currentTheme === 'light') {
+                root.style.setProperty('--background-gradient', 'linear-gradient(135deg, #f0f0f5 0%, #d0d0e0 100%)');
+                root.style.setProperty('--text-color', '#333333');
+                root.style.setProperty('--panel-bg', '#ffffff');
+                root.style.setProperty('--note-item-bg', '#e0e0e0');
+                root.style.setProperty('--canvas-bg', '#f0f0f0');
+            } else {
+                root.style.setProperty('--background-gradient', 'linear-gradient(135deg, #1e1e2f 0%, #2d2d44 100%)');
+                root.style.setProperty('--text-color', '#ffffff');
+                root.style.setProperty('--panel-bg', '#2a2a3f');
+                root.style.setProperty('--note-item-bg', '#3a3a5e');
+                root.style.setProperty('--canvas-bg', '#1a1a2e');
+            }
+        }
+
+        // === Initialization ===
+        setupEventListeners();
+    </script>
+</body>
+</html>
