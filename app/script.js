@@ -12,7 +12,7 @@ const NOTE_FREQS = {
     'E6': 1318.51, 'F6': 1396.91, 'F#6': 1479.98, 'Rest': 0
 };
 
-// Piano key definitions
+// Piano key definitions 
 const keys = [
     { note: 'C3', type: 'white' }, { note: 'C#3', type: 'black' },
     { note: 'D3', type: 'white' }, { note: 'D#3', type: 'black' },
