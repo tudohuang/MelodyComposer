@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyComposer - Creative Workstation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #f5f7fa;
+            overflow: hidden;
+            display: flex;
+            user-select: none;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .title-bar {
+            height: 50px;
+            background: linear-gradient(90deg, #1a73e8, #4285f4);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            -webkit-app-region: drag;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .title-bar .app-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .title-bar img {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.3s ease;
+        }
+
+        .title-bar img:hover {
+            transform: scale(1.1);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+            -webkit-app-region: no-drag;
+        }
+
+        .window-controls button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            transition: background 0.2s ease;
+        }
+
+        .window-controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            width: 300px;
+            background: #fafafa;
+            padding: 25px;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-panel h2 {
+            font-size: 1.6rem;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #1a73e8;
+            color: #fff;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn:hover {
+            background: #1557b0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .control-btn.secondary {
+            background: #ff5722;
+        }
+
+        .control-btn.secondary:hover {
+            background: #e64a19;
+        }
+
+        .control-btn.github {
+            background: #333;
+        }
+
+        .control-btn.github:hover {
+            background: #222;
+        }
+
+        .control-btn i {
+            font-size: 1.2rem;
+        }
+
+        .canvas {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .canvas-header {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .canvas-header h1 {
+            font-size: 2.5rem;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .canvas-header p {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .note-visualizer {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            height: 140px;
+            background: #f5f7fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: background 0.3s ease;
+        }
+
+        .note-visualizer.active {
+            background: #e8f0fe;
+        }
+
+        .note-visualizer p {
+            font-size: 1.1rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note-visualizer i {
+            font-size: 1.5rem;
+            color: #1a73e8;
+        }
+
+        .hidden-konami {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff5555, #ff8a65);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 6px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            font-size: 1.2rem;
+            font-weight: 500;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hidden-konami.active {
+            display: flex;
+            animation: pop 0.4s ease-in-out;
+        }
+
+        .hidden-konami i {
+            font-size: 1.5rem;
+        }
+
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            70% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .tutorial-overlay {
+            display: flex;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .tutorial-box {
+            width: 500px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .tutorial-box h3 {
+            font-size: 1.5rem;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tutorial-box h3 i {
+            font-size: 1.5rem;
+        }
+
+        .tutorial-box ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .tutorial-box li {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tutorial-box li i {
+            color: #1a73e8;
+            font-size: 1.2rem;
+        }
+
+        .tutorial-box button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .tutorial-box button:hover {
+            background: #1557b0;
+        }
+
+        #chat-box {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 420px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        #chat-header {
+            font-size: 1.3rem;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        #chat-header i {
+            font-size: 1.5rem;
+        }
+
+        #chat-content {
+            height: 220px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        #preset-questions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .preset-btn:hover {
+            background: #1557b0;
+            transform: translateY(-1px);
+        }
+
+        #chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        #chat-input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 4px rgba(26, 115, 232, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="title-bar">
+            <div class="app-title">
+                <img src="logo.png" alt="Logo">
+                <span>MelodyComposer</span>
+            </div>
+            <div class="window-controls">
+                <button id="minimize-btn" title="Minimize"><i class="fa-solid fa-minus"></i></button>
+                <button id="maximize-btn" title="Maximize"><i class="fa-solid fa-square"></i></button>
+                <button id="close-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="main-area">
+            <div class="control-panel">
+                <h2><i class="fa-solid fa-music"></i> Workspace</h2>
+                <button class="control-btn" id="compose-btn" onclick="window.location.href='tools_app.html'">                    <i class="fa-solid fa-plus"></i> New Composition
+                </button>
+                <button class="control-btn secondary" id="open-btn">
+                    <i class="fa-solid fa-folder-open"></i> Open Project
+                </button>
+                <button class="control-btn github" id="github-btn">
+                    <i class="fa-brands fa-github"></i> Star on GitHub
+                </button>
+            </div>
+            <div class="canvas">
+                <div class="canvas-header">
+                    <h1>Start Your Musical Journey</h1>
+                    <p>Craft melodies, preview them live, and export to Arduino with ease. Your creative workspace awaits!</p>
+                </div>
+                <div class="note-visualizer">
+                    <p><i class="fa-solid fa-music"></i> Preview Area: Hit "New Composition" to get started!</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorial-overlay" id="tutorial-overlay">
+        <div class="tutorial-box">
+            <h3><i class="fa-solid fa-graduation-cap"></i> Quick Start Guide</h3>
+            <ul>
+                <li><i class="fa-solid fa-plus"></i> Click "New Composition" to start creating a melody.</li>
+                <li><i class="fa-solid fa-folder-open"></i> Use "Open Project" to load existing work (coming soon).</li>
+                <li><i class="fa-solid fa-music"></i> Preview your melody live in the bottom area.</li>            </ul>
+            <button id="close-tutorial">Got It!</button>
+        </div>
+    </div>
+
+    <div id="chat-box">
+        <div id="chat-header">
+            <i class="fa-solid fa-robot"></i> AI 小助手
+        </div>
+        <div id="chat-content"></div>
+        <div id="preset-questions">
+            <button class="preset-btn" data-question="這功能好了嗎？">這功能好了嗎？</button>
+            <button class="preset-btn" data-question="你在偷懶？">你在偷懶？</button>
+            <button class="preset-btn" data-question="你幹嘛做這個？">你幹嘛做這個？</button>
+        </div>
+        <input id="chat-input" type="text" placeholder="問我點什麼吧..." />
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Konami Code Easter Egg
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let userInput = [];
+        const konamiAudio = new Audio('https://www.myinstants.com/media/sounds/powerup.mp3');
+
+        document.addEventListener('keydown', (e) => {
+            userInput.push(e.key);
+            userInput = userInput.slice(-konamiCode.length);
+            if (userInput.join('') === konamiCode.join('')) {
+                konamiAudio.play();
+                const surprise = document.getElementById('konami-surprise');
+                surprise.classList.add('active');
+                setTimeout(() => surprise.classList.remove('active'), 3000);
+            }
+        });
+
+        // Window Controls
+        document.getElementById('minimize-btn').addEventListener('click', () => ipcRenderer.send('minimize-window'));
+        document.getElementById('maximize-btn').addEventListener('click', () => ipcRenderer.send('maximize-window'));
+        document.getElementById('close-btn').addEventListener('click', () => ipcRenderer.send('close-window'));
+
+        // Button Actions
+        const composeBtn = document.getElementById('compose-btn');
+        const openBtn = document.getElementById('open-btn');
+        const githubBtn = document.getElementById('github-btn');
+        const chatBox = document.getElementById('chat-box');
+        const chatContent = document.getElementById('chat-content');
+        const chatInput = document.getElementById('chat-input');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        const noteVisualizer = document.querySelector('.note-visualizer');
+
+        composeBtn.addEventListener('click', () => {
+            noteVisualizer.classList.add('active');
+            noteVisualizer.querySelector('p').innerHTML = `
+                <i class="fa-solid fa-music"></i> Preview Area: New composition started — let’s make some music!
+            `;
+            new Audio('https://www.myinstants.com/media/sounds/coin.mp3').play();
+            // Placeholder for your composition tool
+            console.log('Redirect to composition tool');
+            setTimeout(() => noteVisualizer.classList.remove('active'), 2000);
+        });
+
+        openBtn.addEventListener('click', () => {
+            chatBox.style.display = 'block';
+            chatContent.innerHTML = '<p>嗨！這功能還沒好，試試下面的問題吧！</p>';
+            chatInput.focus();
+        });
+
+        githubBtn.addEventListener('click', () => {
+            window.open('https://github.com/tudohuang/MelodyComposer', '_blank');
+        });
+
+        // Tutorial Control
+        document.getElementById('close-tutorial').addEventListener('click', () => {
+            document.getElementById('tutorial-overlay').style.display = 'none';
+        });
+
+        // Chat Box Logic
+        presetButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const userMessage = button.dataset.question;
+                chatContent.innerHTML += `<p><strong>你:</strong> ${userMessage}</p>`;
+                respondToMessage(userMessage);
+                chatContent.scrollTop = chatContent.scrollHeight;
+            });
+        });
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const userMessage = chatInput.value.trim();
+                if (userMessage) {
+                    chatContent.innerHTML += `<p><strong>你:</strong> ${userMessage}</p>`;
+                    respondToMessage(userMessage);
+                    chatContent.scrollTop = chatContent.scrollHeight;
+                    chatInput.value = '';
+                }
+            }
+        });
+
+        function respondToMessage(userMessage) {
+            setTimeout(() => {
+                if (userMessage.includes('這功能好了嗎') || userMessage.includes('好了嗎')) {
+                    chatContent.innerHTML += '<p><strong>AI:</strong> 沒有</p>';
+                } else if (userMessage.includes('你在偷懶') || userMessage.includes('偷懶')) {
+                    chatContent.innerHTML += `
+                        <p><strong>AI:</strong> 是又怎樣
+                            <img src="https://pgw.udn.com.tw/gw/photo.php?u=https://uc.udn.com.tw/photo/2024/12/24/0/31148880.jpg&x=0&y=0&sw=0&sh=0&exp=3600" alt="So what?" style="max-width: 150px; display: block; margin-top: 5px;">
+                        </p>`;
+                } else if (userMessage.includes('你幹嘛做這個') || userMessage.includes('幹嘛')) {
+                    chatContent.innerHTML += `
+                        <p><strong>AI:</strong> 我愛慕虛榮啦
+                            <img src="https://memeprod.ap-south-1.linodeobjects.com/user-template/1e84e8a62ac5c5c3994582dea6613a55.png" alt="Vanity!" style="max-width: 150px; display: block; margin-top: 5px;">
+                        </p>`;
+                    setTimeout(() => {
+                        chatContent.innerHTML += '<p><strong>AI:</strong> Stay tuned for our updates!</p>';
+                        setTimeout(() => chatBox.style.display = 'none', 2000);
+                    }, 1000);
+                } else {
+                    chatContent.innerHTML += '<p><strong>AI:</strong> 你問啥？我只會回答特定問題哦</p>';
+                }
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }, 500);
+        }
+
+        // Close Chat Box on Outside Click
+        document.addEventListener('click', (e) => {
+            if (!chatBox.contains(e.target) && e.target !== openBtn) {
+                chatBox.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

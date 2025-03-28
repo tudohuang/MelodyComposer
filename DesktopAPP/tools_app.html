@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Composer - Buzzer Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="src/assets/styleAPP.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Toolbar -->
+        <header class="toolbar">
+            <div class="toolbar-left">
+                <h1>Melody Composer - Buzzer Edition</h1>
+            </div>
+            <div class="toolbar-center">
+                <button class="btn btn-primary btn-custom me-2" id="playButton" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Play the current melody"><i class="fas fa-play"></i></button>
+                <button class="btn btn-secondary btn-custom me-2" id="stopButton" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-stop"></i></button>
+                <button class="btn btn-danger btn-custom me-2" onclick="clearSequence()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Clear the current melody"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-warning btn-custom me-2" onclick="addRest()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add a rest to the melody"><i class="fas fa-pause"></i></button>
+            </div>
+            <div class="window-controls">
+                <button id="minimize-btn"><i class="fas fa-window-minimize"></i></button>
+                <button id="maximize-btn"><i class="fas fa-window-maximize"></i></button>
+                <button id="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>Tempo (BPM):</label>
+                    <input type="range" id="bpm-slider" class="form-range" min="60" max="240" step="1" value="120" oninput="updateBPMFromSlider()">
+                    <span id="bpm-value">120</span>
+                </div>
+                <div class="control-group">
+                    <label>Waveform:</label>
+                    <select id="wave_type" class="form-select">
+                        <option value="sine">Sine</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="sawtooth">Sawtooth</option>
+                        <option value="square">Square</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Volume:</label>
+                    <input type="range" id="volume-slider" class="form-range" min="0" max="100" step="1" value="50" oninput="updateVolume()">
+                    <span id="volume-value">50%</span>
+                </div>
+                <div class="control-group">
+                    <label>Duration:</label>
+                    <div class="btn-group" id="duration-buttons">
+                        <button class="btn btn-outline-light btn-custom" onclick="setDuration('32th')">1/32</button>
+                        <button class="btn btn-outline-light btn-custom" onclick="setDuration('16th')">1/16</button>
+                        <button class="btn btn-outline-light btn-custom" onclick="setDuration('eighth')">1/8</button>
+                        <button class="btn btn-outline-light btn-custom btn-selected" onclick="setDuration('quarter')">1/4</button>
+                        <button class="btn btn-outline-light btn-custom" onclick="setDuration('half')">1/2</button>
+                        <button class="btn btn-outline-light btn-custom" onclick="setDuration('whole')">1/1</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Chord:</label>
+                    <select id="chord-select" class="form-select">
+                        <option value="none">None</option>
+                        <option value="C">C Major</option>
+                        <option value="G">G Major</option>
+                        <option value="Am">A Minor</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Rhythm:</label>
+                    <select id="rhythm-select" class="form-select">
+                        <option value="none">None</option>
+                        <option value="4-4">4/4 Beat</option>
+                        <option value="3-4">3/4 Beat</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Piano Roll and Note Grid -->
+            <div class="piano-roll">
+                <div class="piano-container">
+                    <div class="piano" id="piano"></div>
+                </div>
+                <div id="note-grid" class="note-grid"></div>
+            </div>
+
+            <!-- Melody Preview and Progress Bar -->
+            <div class="timeline">
+                <canvas id="melody-preview" class="melody-preview"></canvas>
+                <input type="range" id="progressBar" min="0" max="100" value="0" class="form-range progress-bar">
+            </div>
+
+            <!-- Note Sequence -->
+            <div class="note-sequence">
+                <h5>Composition:</h5>
+                <div class="note-sequence-controls">
+                    <button class="btn btn-info btn-custom" onclick="toggleSelectionMode()">Select Mode</button>
+                    <button class="btn btn-danger btn-custom d-none" id="deleteSelectedBtn" onclick="deleteSelectedNotes()">Delete Selected</button>
+                </div>
+                <div id="notes-list"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-success btn-custom" onclick="generateCode()" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate buzzer code for Arduino"><i class="fas fa-code"></i> Generate Code</button>
+                <button class="btn btn-info btn-custom" onclick="saveMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Save the melody as a JSON file"><i class="fas fa-save"></i> Save</button>
+                <input type="file" id="loadMelody" class="d-none" onchange="loadMelody(event)">
+                <button class="btn btn-info btn-custom" onclick="document.getElementById('loadMelody').click()" data-bs-toggle="tooltip" data-bs-placement="top" title="Load a melody from a JSON file"><i class="fas fa-upload"></i> Load</button>
+                <button class="btn btn-info btn-custom" onclick="openKeymapEditor()" data-bs-toggle="tooltip" data-bs-placement="top" title="Customize keyboard shortcuts"><i class="fas fa-keyboard"></i> Keymap</button>
+                <button class="btn btn-info btn-custom" onclick="generateRandomMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a random melody"><i class="fas fa-random"></i> Random</button>
+                <button class="btn btn-info btn-custom" onclick="shareMelody()" data-bs-toggle="tooltip" data-bs-placement="top" title="Share your melody with others"><i class="fas fa-share-alt"></i> Share</button>
+                <button class="btn btn-outline-light btn-custom" onclick="toggleTheme()" data-bs-toggle="tooltip" data-bs-placement="top" title="Toggle between light and dark themes"><i class="fas fa-adjust"></i> Theme</button>
+            </div>
+
+            <!-- Code Output -->
+            <div class="code-section">
+                <div class="buzzer-code" id="buzzer-code">Buzzer code will appear here...</div>
+                <button class="btn btn-secondary btn-custom copy-btn" id="copyCodeBtn" onclick="copyCode()" data-bs-toggle="tooltip" data-bs-placement="top" title="Copy to clipboard"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+        </div>
+
+        <!-- Shortcut Panel -->
+        <button class="shortcut-toggle" onclick="toggleShortcutPanel()">
+            <i class="fas fa-keyboard"></i>
+        </button>
+        <div class="shortcut-panel" id="shortcutPanel">
+            <h5>Shortcut Dashboard</h5>
+            <ul id="shortcutList"></ul>
+        </div>
+
+        <!-- Keymap Editor -->
+        <div class="keymap-editor" id="keymapEditor">
+            <h5>Customize Keymap</h5>
+            <div id="keymapList"></div>
+            <button class="btn btn-success mt-3" onclick="saveKeymap()">Save Keymap</button>
+            <button class="btn btn-danger mt-3 ms-2" onclick="closeKeymapEditor()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/scriptAPP.js"></script>
+    <script src="src/renderer.js"></script>
+</body>
+</html>
