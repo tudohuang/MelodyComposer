@@ -1,82 +1,115 @@
-# Melody Composer
+<div align="center">
 
-## Project Overview
-Melody Composer is a desktop application built with Electron, designed for Arduino enthusiasts and music creators. It offers a visual interface that mimics playing a piano, allowing users to intuitively compose melodies and generate code compatible with Arduino buzzers. No advanced programming skills are required—just click to create music for your buzzer projects! Check out our [example website](https://melody-composer.netlify.app/) to explore the creation process or view sample code.
+# 🎼 Melody Composer
+<p>
+  <strong> 🎹 Melody Composer is a beginner-friendly desktop app to compose melodies for Arduino buzzers using a simple, visual piano interface.</strong>
+</p>
 
-### Key Features
-- **Visual Composition**: Input notes and rhythms with a piano-like interface by simply clicking.
-- **Arduino Buzzer Support**: Automatically generates code ready for Arduino buzzers.
-- **Portable Mode**: No installation needed—extract and run, perfect for portability and sharing.
-- **Example Website**: Showcases creation examples and Arduino application tutorials.
+![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-lightgrey?style=flat-square)
+![Downloads](https://img.shields.io/github/downloads/tudohuang/MelodyComposer/total?style=flat-square)
+[![Website](https://img.shields.io/badge/Live-Demo-brightgreen?style=flat-square&logo=netlify)](https://melody-composer.netlify.app/)
+
+</div>
+
+---
+
+## Features
+
+| Type               | Description                                                    |
+|--------------------|----------------------------------------------------------------|
+| Visual Composer | Click to input notes & rhythms on a virtual piano interface    |
+| Arduino Support | Export ready-to-use Arduino buzzer code                        |
+| Portable App    | No installation needed – just extract and run                  |
+| Live Demo       | [Check our website](https://melody-composer.netlify.app/)      |
 
 ---
 
 ## Installation
 
 ### System Requirements
-- Operating System: Windows 10 or later
-- Memory: At least 2GB of available RAM
-- Storage: 500MB of free space
+- **OS**: Windows 10 or newer
+- **RAM**: ≥ 2 GB
+- **Storage**: ≥ 500 MB
 
-### Installation Steps
-1. **Download the App**  
-   - Grab the latest version, `Melody Composer 1.0.0.exe`, from the [Releases page](link-to-be-added).
-2. **Run the Program**  
-   - Double-click `Melody Composer 1.0.0.exe` to launch—no installation required.
+### Install and Run
+1. Download the `.exe` from the [**Releases**](https://github.com/your-username/melody-composer/releases) tab  
+2. Double-click `Melody Composer 1.0.0.exe`  
+3. Done! No setup needed.
 
 ### Developer Setup (Optional)
-To run or modify from source:
-1. Ensure [Node.js](https://nodejs.org/) is installed (LTS version recommended).
-2. Clone the project:
-   ```bash
-   git clone https://github.com/your-username/melody-composer.git
-   cd melody-composer
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the app:
-   ```bash
-   npm start
-   ```
+```bash
+git clone https://github.com/your-username/melody-composer.git
+cd melody-composer
+npm install
+npm start
+```
 
 ---
 
 ## How to Use
-1. **Launch the App**: Run `Melody Composer 1.0.0.exe` or use `npm start` (developer mode).
-2. **Visual Composition**: Click notes on the piano-like interface to adjust pitch and rhythm.
-3. **Generate Code**: Once finished, export your melody as Arduino buzzer-compatible code.
-4. **Apply to Arduino**: Copy the generated code into the Arduino IDE and upload it to your buzzer circuit.
-5. **Explore Examples**: Visit our [example website](https://melody-composer.netlify.app/) for creation demos and Arduino wiring guides.
 
-For detailed instructions, refer to the in-app help (if available) or the example website.
+1. **Launch App** → Open `.exe` or use `npm start`
+2. **Compose** → Click notes on the piano interface
+3. **Export** → Generate Arduino-compatible melody code
+4. **Upload** → Paste code into Arduino IDE and upload
+5. **Explore** → Check [Live Examples](https://melody-composer.netlify.app/) for wiring & demos
+
+---
+
+## Project Structure
+
+```bash
+MelodyComposer/
+├── src/                # Electron app source
+├── assets/             # Icons and piano notes
+├── dist/               # Packaged executable output
+├── main.js             # Main process
+├── renderer.js         # Renderer UI logic
+├── package.json        # App configuration
+└── README.md           # This file
+```
 
 ---
 
 ## Contributing
-We welcome contributions of all kinds! To get involved:
 
-1. **Fork the Project**: Click the Fork button on the GitHub page.
-2. **Submit Changes**:
-   - Create a new branch: `git checkout -b feature/your-feature-name`
-   - Commit your changes: `git commit -m "Describe your changes"`
-   - Push to remote: `git push origin feature/your-feature-name`
-3. **Create a Pull Request**: Submit a PR on GitHub, and we’ll review it as soon as possible.
+We ❤contributions!  
+Here’s how you can help:
 
-For questions or suggestions, please file an issue on Issues.
+```bash
+# Create your branch
+git checkout -b feature/my-feature
+
+# Make changes and commit
+git commit -m "Add new piano note function"
+
+# Push and open PR
+git push origin feature/my-feature
+```
+
+Submit a Pull Request or [Open an Issue](https://github.com/your-username/melody-composer/issues) if you have ideas or run into bugs.
 
 ---
 
-## Contact Us
-- **Developer**: TudoHuang
-- **Email**: cithubofficial@gmail.com
-- **Example Website**: [Visit Here](https://melody-composer.netlify.app/)
+## Contact
+
+| Contact         | Info                                         |
+|-----------------|----------------------------------------------|
+| Developer     | TudoHuang                                   |
+| Email         | [cithubofficial@gmail.com](mailto:cithubofficial@gmail.com) |
+| Example Site  | [melody-composer.netlify.app](https://melody-composer.netlify.app/) |
 
 ---
 
-## Version Info
-- **Latest Version**: 1.0.0
-- **Release Date**: March 15, 2025
+## 🗓Version Info
 
-Thank you for using Melody Composer! We hope it brings fun and ease to your Arduino music projects. **If you find it helpful, we’d greatly appreciate it if you could give us a star on GitHub and share it with others!**
+| Version | Date          | Notes           |
+|---------|---------------|------------------|
+| 1.0.0   | March 15, 2025 | First release! |
+
+---
+
+> ⭐ **If you like this project, give it a star and share it with your maker friends!**
+
+---
